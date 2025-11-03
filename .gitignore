@@ -2,3 +2,4 @@
 **/*.png
 **/*.rds
 *.jld2
+writing/
