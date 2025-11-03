@@ -1,0 +1,100 @@
+# Slot coding:
+
+Slot coding is computed by summing the number of matching phonemes between two strings, divided by the length of the longest string.
+Note that matching between phonemes is computed position-wise, starting from the first phoneme: The first phoneme of s1 will be matched against the first phoneme of s2, and so on. 
+
+## Example:
+"hello" and "hell" have 4 matching phonemes. The longest string has 4 phonemes. Therefore, their similarity is 4/5 = 0.8.
+
+# Closed biphone:
+
+The closed biphone model is computed by first extracting all the biphones constitutive of each string separately.When doing so, biphones are extracted as sets, meaning that if a biphone appears more than once in a string, it is counted only once. In the closed biphone model, biphones involve only adjacent phonemes. The first and last phonemes have their own biphones with the borders of the word marking the beginning and the end of the word. Similarity is then computed by summing the number of matching biphones in both strings, divided by the length of the longest string of biphones.
+
+## Example:
+
+The biphones of "hello" and "hell" are the following ones:
+"hello": [_h, he, el, ll, lo, o_] (length = 6)
+"hell": [_h, he, el, ll, l_] (length = 5)
+They have 4 biphones in common: [_h, he, el, ll]
+Therefore, their similarity is 4/6 = 0.666
+
+# Open biphone:
+
+The open biphone model is similar to the closed biphone model, except that biphones are not limited to adjacent phonemes but extend up to two (arbitrary choice) positions further. The degree of openness can be treated as free parameter.
+
+## Example:
+
+The biphones of "today" and "monday" are the following ones:
+"today": [_t, to, td, ta, od, oa, oy, da, dy, ay, y_] (length = 11)
+"monday": [_m, mo, mn, md, on, od, oa, nd, na, ny, da, dy, ay, y_] (length = 14)
+They have 6 biphones in common: [od, oa, da, dy, ay, y_]
+Therefore, their similarity is 6/14 = 0.429
+
+# Levenshtein:
+
+The levenshtein model is computed by first computing the levenshtein distance between two strings. The levenshtein distance is the number of minimum changes (insertions, deletion, substitions) required to go from one string to another. The similarity between two strings is then computed by dividing their distance by the length of the longest string and subtracting it to one.
+Note that I used a package to compute the levenshtein distance, I did not implement it myself.
+
+## Example:
+
+The distance between "today" (length = 5) and "monday" (length = 6) is 2. Therefore, their similarity is 1 - 2/6 = 0.666.
+
+# Syllable:
+
+The syllable (or Zurich) model requires a syllable decomposition of each word. Each syllable is then decomposed into onset, nucleus and coda, and syllables are compared one by one following this syllabic structure. Similarity between two strings is then obtained by diving the number of mismatches by the number of comparisons, that we subtract to one.
+Note that when comparing syllables, we added a degree of flexibility, such that when two words have a different number of syllables, syllables are compared in their order, but the starting point of the word with fewer syllables is always more flexible (Eda told me that she also proceeded this way).
+This metric alone required me quite a lot of programming. The difficult part was to obtain the syllabic structure of the words at the phonological level.
+I started from the items' orthographic decomposition: http://www.delphiforfun.org.ws034.alentus.com/Programs/Syllables.htm
+I then tried to have an estimation of items' phonological decomposition using the orthographic structure, but that wasn't perfect. I therefore had to discard a lot of words, because their phonological decomposition couldn't be known for sure, depending on the case. If we include words for which we didn't have the orthographic decomposition in the first place, I kept around 50 to 40% of words in the original database.
+
+## Example:
+
+The words "moment" and "department": "məʊ-mənt", "dɪ-pɑt-mənt"
+
+"məʊ-mənt": 
+syllable 1:
+onset => m
+nucleus => əʊ
+coda => nothing
+
+syllable 2:
+onset => m
+nucleus => ə
+coda => nt
+
+"dɪ-pɑt-mənt":
+syllable 1:
+onset => d
+nucleus => i
+coda => nothing
+
+syllable 2:
+onset => p
+nucleus => ɑ
+coda => t
+
+syllable 3:
+onset => m
+nucleus => ə
+coda => nt
+
+Comparison:
+For that comparison, I matched the words based on their last syllable, because this maximizes their similarity.
+
+syllable 1:
+onset => d vs. nothing (+1 mismatch, +1 comparison)
+nucleus => i vs. nothing (+1 mismatch, +1 comparison)
+coda => nothing vs. nothing (+0 mismatch, +0 comparison)
+
+syllable 2:
+onset => p vs. m (+1 mismatch, +1 comparison)
+nucleus => ɑ vs. əʊ (+2 mismatch, +2 comparison)
+coda => t vs. nothing (+1 mismatch, +1 comparison)
+
+syllable 3:
+onset => m vs. m (+0 mismatch, +1 comparison)
+nucleus => ə vs. ə (+0 mismatch, +1 comparison)
+coda => nt vs. nt (+0 mismatch, +2 comparison)
+
+In total, we have 5 mismatches and 8 comparisons. The similarity between both words is therefore 1 - 6/10 = 0.4
+Note that for the comparison within syllables, phonemes are compared following a slot model. If we have "t" and "nt" as codas, "t" will be matched to "n", and "t" will then be matched to nothing, creating two mismatches and two comparisons.

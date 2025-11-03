@@ -1,0 +1,9 @@
+- Switching to french because: syllable decomposition, isolating singular form, lemma...
+
+- Switching to lists composed of two triplets.
+- Triplets are built by maximizing the similarity value over one metric, and minimizing this value over all other metrics
+    - Not necessarily possible with the slot coding model and the levenshtein distance
+    - Five metrics: slot coding, closed biphone, open biphone, syllable metric, levenshtein distance
+    - For the open biphone metric: openness of two biphones
+
+- News on the semantic similarity - shall we take a new appointment?

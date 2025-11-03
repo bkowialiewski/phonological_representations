@@ -1,0 +1,10 @@
+Metric,Dissimilar,Grouped,Interleaved
+slot_coding,0.077,0.767,0.767
+levenshtein,0.099,0.767,0.767
+syllable,0.096,0.767,0.767
+closed_biphone,0.032,0.624,0.624
+open_biphone_1,0.029,0.605,0.605
+open_biphone_2,0.03,0.549,0.549
+open_biphone_3,0.029,0.535,0.535
+open_biphone_4,0.029,0.533,0.533
+open_biphone_5,0.029,0.533,0.533
